@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32002.261
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FlashingColorsGrid", "FlashingColorsGrid.vcxproj", "{D9CB8BB8-C846-46E9-8E94-255A00886DE6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9CB8BB8-C846-46E9-8E94-255A00886DE6}.Debug|x64.ActiveCfg = Debug|x64
+		{D9CB8BB8-C846-46E9-8E94-255A00886DE6}.Debug|x64.Build.0 = Debug|x64
+		{D9CB8BB8-C846-46E9-8E94-255A00886DE6}.Debug|x86.ActiveCfg = Debug|Win32
+		{D9CB8BB8-C846-46E9-8E94-255A00886DE6}.Debug|x86.Build.0 = Debug|Win32
+		{D9CB8BB8-C846-46E9-8E94-255A00886DE6}.Release|x64.ActiveCfg = Release|x64
+		{D9CB8BB8-C846-46E9-8E94-255A00886DE6}.Release|x64.Build.0 = Release|x64
+		{D9CB8BB8-C846-46E9-8E94-255A00886DE6}.Release|x86.ActiveCfg = Release|Win32
+		{D9CB8BB8-C846-46E9-8E94-255A00886DE6}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {23679105-C919-49CD-A9AF-987669F6691C}
+	EndGlobalSection
+EndGlobal
