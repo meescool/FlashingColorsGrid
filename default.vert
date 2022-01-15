@@ -11,5 +11,5 @@ void main()
 {
 	gl_Position = vec4(aPos.x + moveX, aPos.y - moveY, aPos.z, 1.0);
 
-   color = aColor * myColor;
+   color = aColor + myColor;
 }

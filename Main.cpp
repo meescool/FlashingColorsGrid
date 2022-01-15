@@ -7,17 +7,19 @@
 #include"VBO.h"
 #include"EBO.h"
 
+#include"map"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, GLuint* size, int* myKeys);
 
 // safer to use OPENGL version of floats
 // give the coordinates of the vertices of a triangle
 GLfloat vertices[] =
 { //			coordinates	   /				colors				//
 	-1.0f,	 1.0f,		0.0f,	0.3f,	0.0f,	1.0f,	// lower left corner
-	-0.33f,	 1.0f,		0.0f,	0.9f,	0.1f,	0.9f,	// lower right corner
-	-1.0f,	 0.33f,		0.0f,	0.9f,	0.1f,	0.9f,	// upper corner
-	-0.33f,  0.33f,		0.0f,	0.9f,	0.1f,	0.9f	// inner left
+	 1.0f,	 1.0f,		0.0f,	0.9f,	0.1f,	0.9f,	// lower right corner
+	-1.0f,	-1.0f,		0.0f,	0.9f,	0.1f,	0.9f,	// upper corner
+	 1.0f, -1.0f,		0.0f,	0.9f,	0.1f,	0.9f	// inner left
 };
 
 GLuint indices[] =
@@ -70,8 +72,6 @@ int main()
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
 
-	const int ilen = 6;
-
 	Shader shaderProgram("default.vert", "default.frag");
 
 	// generates vertex array object and binds it
@@ -101,10 +101,23 @@ int main()
 	float y = 0;
 	float c = 0;
 
+	GLuint size[2] = { 1,1 };
+	// up,down,left,right
+	int myKeys[4] = {
+		false,
+		false,
+		false,
+		false
+	};
+
+
     while (!glfwWindowShouldClose(window))
     {
+
+		int row = size[0];
+		int col = size[1];
 		m+= 0.001;
-        processInput(window);
+        processInput(window, size, myKeys);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -116,16 +129,19 @@ int main()
 		x = 0.0f;
 		y = 0.0f;
 		glUniform1f(cID, 1);
-		for (int i = 0; i <= 36 ; i++) {
+
+		float w = 2.0f / static_cast<float>(col);
+		float h = 2.0f / static_cast<float>(row);
+		for (int i = 0; i <= row*col ; i++) {
 			glUniform1f(cID, sin(c+i));
-			glDrawElements(GL_TRIANGLES, ilen, GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glUniform1f(mxID, x);
 			glUniform1f(myID, y);
-			x += 0.333f;
+			x += w;
 			if (i > 0) {
-				if (i % 6 == 0) {
+				if (i % col == 0) {
 					x = 0.0f;
-					y += 0.333f;
+					y += h;
 				}
 			}
 			c += 0.0001f;
@@ -153,10 +169,36 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, GLuint* size, int* myKeys)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-		std::cout << "F is being pressed" << std::endl;
+
+
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS ) {
+		myKeys[0] = true;
+		std::cout << size[0] << "up is being pressed" << std::endl;
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE && myKeys[0] == true) {
+		myKeys[0] = false;
+		if (size[0] <= 20) {
+			size[0] += 1;
+			size[1] += 1;
+		}
+
+	}
+
+
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		myKeys[1] = true;
+
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE && myKeys[1] == true) {
+		myKeys[1] = false;
+		if (size[0] > 0) {
+			size[0] -= 1;
+			size[1] -= 1;
+		}
+	}
+		
 }
