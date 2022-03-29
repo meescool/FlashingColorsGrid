@@ -1,3 +1,12 @@
+/*
+* @author	Marcela Estrada
+* @desc		This program is a graphical representation of a square grid,
+*			it allows the user to define how many divisions the grid should 
+*			have by pressing on the UP key to increase or the DOWN key to
+*			decrease.
+* @source	I followed tutorials from https://learnopengl.com/ and Victor Gordan
+*			from Youtube to get the project set up.
+*/
 #include <iostream>
 #include <glad/glad.h>  // this needs to go before GLFW
 #include <GLFW/glfw3.h>
@@ -7,9 +16,9 @@
 #include"VBO.h"
 #include"EBO.h"
 
-#include"map"
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+// resize frame buffer to fit the window
+void resizeFrameBuffer(GLFWwindow* window, int width, int height);
+// process key inputs
 void processInput(GLFWwindow* window, GLuint* size, int* myKeys);
 
 // safer to use OPENGL version of floats
@@ -22,11 +31,11 @@ GLfloat vertices[] =
 	 1.0f, -1.0f,		0.0f,	0.9f,	0.1f,	0.9f	// inner left
 };
 
+// indicated with vertices to use to create the square
 GLuint indices[] =
 {
 	0,1,2, // lower left triangle
 	2,1,3, // lower right triangle
-
 };
 
 int main()
@@ -36,8 +45,9 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(600, 600, "LearnOpenGL", NULL, NULL);
-    if (window == NULL)
+    GLFWwindow* window = glfwCreateWindow(600, 600, "Flashing Colors", NULL, NULL);
+    
+	if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -46,32 +56,19 @@ int main()
 
     glfwMakeContextCurrent(window);
 
-    // initializing glad
-    //gladLoadGL();
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
+    // initializing glad, setting checks in case it doesn't load
+	if (gladLoadGL() != 1) {
+		std::cout << "Failed to initialize Glad!!! </3"<< std::endl;
+		return -1;
+	}
+
 
     glViewport(0, 0, 600, 600);
 
     // for resizing the window
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(window, resizeFrameBuffer);
 
-
-
-    // setting initial color
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-
-
-
-    int nrAttributes;
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-    std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
-
+	// create the shader program
 	Shader shaderProgram("default.vert", "default.frag");
 
 	// generates vertex array object and binds it
@@ -83,24 +80,28 @@ int main()
 	// generates element buffer object and links it to indices
 	EBO EBO1(indices, sizeof(indices));
 
-	// links vob to vao
+	// links vbo to vao
 	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
 	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
 	// unbind all objects
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
 
+	// uniforms for creating new squares
 	GLuint mxID = glGetUniformLocation(shaderProgram.ID, "moveX");
 	GLuint myID = glGetUniformLocation(shaderProgram.ID, "moveY");
+
+	// uniform for changing color
 	GLuint cID = glGetUniformLocation(shaderProgram.ID, "myColor");
 
+	// temp variables for uniforms
+	float x = 0; // width
+	float y = 0; // height
+	float c = 0; // color
 
-	float m = 0;
-	float x = 0;
-	float y = 0;
-	float c = 0;
-
+	// sizes of the squares
 	GLuint size[2] = { 1,1 };
 	// up,down,left,right
 	int myKeys[4] = {
@@ -110,42 +111,53 @@ int main()
 		false
 	};
 
+	// setting initial color
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 
     while (!glfwWindowShouldClose(window))
     {
+		processInput(window, size, myKeys);
 
+		// rows and columns to new sizes incase the user presses UP/DOWN keys
 		int row = size[0];
 		int col = size[1];
-		m+= 0.001;
-        processInput(window, size, myKeys);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		// clear the color buffer
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+		// start the shader program
 		shaderProgram.Start();
 		// bind the vao so opengl knows to use it
 		VAO1.Bind();
-		// draw the triangle using the GL_TRIANGLES primitive
+
+		// reset x and y to 0
 		x = 0.0f;
 		y = 0.0f;
-		glUniform1f(cID, 1);
 
+		// update the color
+		glUniform1f(cID, 1);
+		c += 0.001f;
+
+		// set the width and height for the squares
+		// in case the sizes are new
 		float w = 2.0f / static_cast<float>(col);
 		float h = 2.0f / static_cast<float>(row);
+
+
 		for (int i = 0; i <= row*col ; i++) {
-			glUniform1f(cID, sin(c+i));
+
+			if (i % col == 0 && i != 0) {
+				x = 0.0f;
+				y += h;
+			}
+			glUniform1f(cID, tan(c+i));
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glUniform1f(mxID, x);
 			glUniform1f(myID, y);
-			x += w;
-			if (i > 0) {
-				if (i % col == 0) {
-					x = 0.0f;
-					y += h;
-				}
-			}
-			c += 0.0001f;
-
+			x += w;			
 		}
 
         glfwSwapBuffers(window);
@@ -164,21 +176,31 @@ int main()
     return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void resizeFrameBuffer(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
-
+/// <summary>
+/// function for processing user input. 
+/// If the user presses the escape key, the program will exit.
+/// If the user presses the up key, the number of squares will go down
+/// If the user presses the down key, the number of squares will go up
+/// </summary>
+/// <param name="window">the window object</param>
+/// <param name="size">the number of squares</param>
+/// <param name="myKeys">the keys</param>
 void processInput(GLFWwindow* window, GLuint* size, int* myKeys)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-
+	// if the up key was pressed, it will set that key value to true
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS ) {
 		myKeys[0] = true;
 		std::cout << size[0] << "up is being pressed" << std::endl;
 	}
+	// if the up key was released and it had the value from myKeys as true
+	// it will then indicate to increase the number of squares
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE && myKeys[0] == true) {
 		myKeys[0] = false;
 		if (size[0] <= 20) {
@@ -188,11 +210,13 @@ void processInput(GLFWwindow* window, GLuint* size, int* myKeys)
 
 	}
 
-
+	// if the down key was pressed, it will set that key value to true
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		myKeys[1] = true;
 
 	}
+	// if the down key was released and it had the value from myKeys as true
+	// it will then indicate to decrease the number of squares	
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE && myKeys[1] == true) {
 		myKeys[1] = false;
 		if (size[0] > 0) {
