@@ -11,6 +11,7 @@ It starts with one square and the user can change the number of squares by pushi
 ## Sample run
 ![Sample run](https://raw.githubusercontent.com/meescool/flashingColorsGrid/main/img/gif.gif "An animation of the program being run. Shows a square and then duplicates")
 
-
-<!-- Here is a link to a video of the program running: https://youtu.be/NRkDn4WgZks -->
+## Other OpenGL projects
+- [FlashingColorsCubes](https://github.com/meescool/FlashingColorsCubes)
+- [MCube](https://github.com/meescool/mCube)
 
